@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 
 /**
  * @author Ashish Karki
- * Processes balances...
+ * Processes balances in following manner:
  * <li>1. Print the final balances on all bank accounts</li>
- * * 	    <li>2. Print the bank account with the highest balance</li>
- * * 	    <li>3. Print the most frequently used source bank account</li>
+ * <li>2. Print the bank account with the highest balance</li>
+ * <li>3. Print the most frequently used source bank account</li>
  */
 @Log4j2
 public class BalanceProcessor {
@@ -25,7 +25,7 @@ public class BalanceProcessor {
      * @param transferEntities List of BalanceTransfer entities
      * @return a Pair with accToBalanceMap and accToFreqMap
      */
-    public Pair<Map<String, Double>, Map<String, Integer>> processorTransfers(
+    public Pair<Map<String, Double>, Map<String, Double>> processorTransfers(
             final List<BalanceTransferEntity> transferEntities
     ) {
         // exception: A source Bank account with ID 0 does not have a balance
@@ -34,83 +34,89 @@ public class BalanceProcessor {
 
         final Map<String, Double> accToBalanceMap = new HashMap<>();
 
-        // Reference: https://www.baeldung.com/java-list-split
         final Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances =
-                transferEntities.stream().collect(
-                        Collectors.partitioningBy(transferEntity ->
-                                transferEntity.getSourceAccount().equalsIgnoreCase("0")));
+                getStartingNonStartingMaps(transferEntities);
 
         // Determine the opening balances on all available accounts
         // These are the ones where sourceAccount == 0 i.e. the starting balance transfers
         startingNonStartingBalances.get(true)
                 .forEach(entity -> accToBalanceMap.put(
-                        entity.getDestinationAccount(),
+                        entity.getDestAccount(),
                         entity.getAmount()));
 
         // DEBUG STATEMENT
-        accToBalanceMap.forEach((acc, bal) ->
-                log.info("acc: {}, Starting balance: {}", acc, bal));
+//        accToBalanceMap.forEach((acc, bal) ->
+//                log.info("acc: {}, Starting balance: {}", acc, bal));
 
         // Go through the motion of calculating final balances
-        final Map<String, Integer> accToFreqMap = new HashMap<>();
+        final Map<String, Double> accToFreqMap = new HashMap<>();
         startingNonStartingBalances.get(false)
-                .forEach(entity -> {
-                    assert accToBalanceMap.containsKey(entity.getSourceAccount());
-                    assert accToBalanceMap.containsKey(entity.getDestinationAccount());
-
-                    // Deduct this amount from source account
-                    final double newSrcAmount = accToBalanceMap.get(entity.getSourceAccount()) - entity.getAmount();
-                    accToBalanceMap.replace(
-                            entity.getSourceAccount(),
-                            newSrcAmount);
-
-                    // if source account doesn't exist, put 1 as value, otherwise add 1 to the current value
-                    accToFreqMap.merge(entity.getSourceAccount(), 1, Integer::sum);
-
-                    // Add this amount to the destination account
-                    final double newDestAmount = accToBalanceMap.get(entity.getDestinationAccount()) + entity.getAmount();
-                    accToBalanceMap.replace(
-                            entity.getDestinationAccount(),
-                            newDestAmount);
-                });
+                .forEach(entity -> buildAccountMaps(accToBalanceMap, accToFreqMap, entity));
 
         // Reference: https://www.baeldung.com/java-tuples
-        Pair<Map<String, Double>, Map<String, Integer>> mapPair = Pair.with(accToBalanceMap, accToFreqMap);
-
-        return mapPair;
+        return Pair.with(accToBalanceMap, accToFreqMap);
     }
 
-    public String balancesPrinter(final Map<String, Double> accToBalanceMap, final Map<String, Integer> accToFreqMap) {
-        // PRINT STATEMENTS
-        System.out.println("*************** RESULTANT PRINTS BELOW *****************");
+    /**
+     * @param accToBalanceMap AccNumber to its Balance Map
+     * @param accToFreqMap    AccNumber to its Freq. as a Source Map
+     * @return string representing formatting output
+     */
+    public String balancesPrinter(final Map<String, Double> accToBalanceMap, final Map<String, Double> accToFreqMap) {
+        log.info("*************** RESULTANT PRINTS BELOW *****************");
 
         final var balancesBuilder = new StringBuilder();
-        // System.out.println("#Balances");
-        balancesBuilder.append("#Balances\n");
+        balancesBuilder.append("#Balances").append(Constants.NEWLINE_STRING);
 
         accToBalanceMap.forEach((acc, balance) ->
-                balancesBuilder.append(acc + " - " + Constants.TWO_PLACE_DECIMAL.format(balance) + "\n"));
+                balancesBuilder.append(acc).append(" - ")
+                        .append(Constants.TWO_PLACE_DECIMAL.format(balance))
+                        .append(Constants.NEWLINE_STRING));
 
         // Find account with highest balance after all the transfers
         // reference: https://stackoverflow.com/questions/5911174/finding-key-associated-with-max-value-in-a-java-map/11256352
-        final String accWithHighestBalance = Collections.max(
-                accToBalanceMap.entrySet(),
-                Map.Entry.comparingByValue())
-                .getKey();
-//        System.out.printf("#Bank Account with highest balance \n%s", accWithHighestBalance);
-//        System.out.println();
-        balancesBuilder.append("#Bank Account with highest balance \n");
-        balancesBuilder.append(accWithHighestBalance + "\n");
+        final String accWithHighestBalance = getKeyForMaxValue(accToBalanceMap);
+        balancesBuilder.append("#Bank Account with highest balance").append(Constants.NEWLINE_STRING);
+        balancesBuilder.append(accWithHighestBalance).append(Constants.NEWLINE_STRING);
 
-        final String accWithMaxSrcFreq = Collections.max(
-                accToFreqMap.entrySet(),
-                Map.Entry.comparingByValue())
-                .getKey();
-//        System.out.printf("#Frequently used source bank account \n%s", accWithMaxSrcFreq);
-//        System.out.println();
-        balancesBuilder.append("#Frequently used source bank account \n");
-        balancesBuilder.append(accWithMaxSrcFreq + "\n");
+        final String accWithMaxSrcFreq = getKeyForMaxValue(accToFreqMap);
+        balancesBuilder.append("#Frequently used source bank account").append(Constants.NEWLINE_STRING);
+        balancesBuilder.append(accWithMaxSrcFreq);
 
         return balancesBuilder.toString();
+    }
+
+    private void buildAccountMaps(final Map<String, Double> accToBalanceMap, final Map<String, Double> accToFreqMap, final BalanceTransferEntity entity) {
+        assert accToBalanceMap.containsKey(entity.getSrcAccount());
+        assert accToBalanceMap.containsKey(entity.getDestAccount());
+
+        // Deduct this amount from source account
+        final double newSrcAmount = accToBalanceMap.get(entity.getSrcAccount()) - entity.getAmount();
+        accToBalanceMap.replace(
+                entity.getSrcAccount(),
+                newSrcAmount);
+
+        // if source account doesn't exist, put 1 as value, otherwise add 1 to the current value
+        accToFreqMap.merge(entity.getSrcAccount(), 1.0, Double::sum);
+
+        // Add this amount to the destination account
+        final double newDestAmount = accToBalanceMap.get(entity.getDestAccount()) + entity.getAmount();
+        accToBalanceMap.replace(
+                entity.getDestAccount(),
+                newDestAmount);
+    }
+
+    private Map<Boolean, List<BalanceTransferEntity>> getStartingNonStartingMaps(final List<BalanceTransferEntity> transferEntities) {
+        // Reference: https://www.baeldung.com/java-list-split
+        return transferEntities.stream().collect(
+                Collectors.partitioningBy(transferEntity ->
+                        transferEntity.getSrcAccount().equalsIgnoreCase("0")));
+    }
+
+    private String getKeyForMaxValue(final Map<String, Double> accToSomeValueMap) {
+        return Collections.max(
+                accToSomeValueMap.entrySet(),
+                Map.Entry.comparingByValue())
+                .getKey();
     }
 }

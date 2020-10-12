@@ -31,8 +31,8 @@ public final class TransferEntityBuilder {
                 .collect(Collectors.toList());
 
         return BalanceTransferEntity.builder()
-                .sourceAccount(splitTransferCols.get(0))
-                .destinationAccount(splitTransferCols.get(1))
+                .srcAccount(splitTransferCols.get(0))
+                .destAccount(splitTransferCols.get(1))
                 .amount(Double.parseDouble(splitTransferCols.get(2)))
                 .transferDate(LocalDate.parse(splitTransferCols.get(3), TRANSFER_DATE_FORMAT))
                 .transferId(Long.parseLong(splitTransferCols.get(4)))

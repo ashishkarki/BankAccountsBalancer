@@ -58,6 +58,6 @@ public class TransfersApplication implements CommandLineRunner {
         final var balancesStr = balanceProcessor.balancesPrinter(mapPair.getValue0(), mapPair.getValue1());
 
         // FINAL PRINTING OF RESULTS
-        System.out.print(balancesStr);
+        log.info(Constants.NEWLINE_STRING + balancesStr);
     }
 }

@@ -13,15 +13,27 @@ import java.time.LocalDate;
 @Builder
 public class BalanceTransferEntity {
     /**
-     * account from which money is being sent
+     * account FROM which money is being sent
      */
-    private String sourceAccount;
+    private String srcAccount;
 
-    private String destinationAccount;
+    /**
+     * account TO which money is being sent
+     */
+    private String destAccount;
 
+    /**
+     * Amount of transfer
+     */
     private double amount;
 
+    /**
+     * Date of transfer
+     */
     private LocalDate transferDate;
 
+    /**
+     * ID assigned to this transfer
+     */
     private long transferId;
 }

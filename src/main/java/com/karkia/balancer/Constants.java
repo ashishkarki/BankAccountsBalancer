@@ -22,4 +22,5 @@ public final class Constants {
      * Formats a two place decimal
      */
     public static final DecimalFormat TWO_PLACE_DECIMAL = new DecimalFormat("#.##");
+    public static final String NEWLINE_STRING = "\n";
 }
