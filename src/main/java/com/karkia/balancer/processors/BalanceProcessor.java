@@ -3,6 +3,7 @@ package com.karkia.balancer.processors;
 import com.karkia.balancer.Constants;
 import com.karkia.balancer.entities.BalanceTransferEntity;
 import lombok.extern.log4j.Log4j2;
+import org.javatuples.Pair;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +23,11 @@ public class BalanceProcessor {
 
     /**
      * @param transferEntities List of BalanceTransfer entities
+     * @return a Pair with accToBalanceMap and accToFreqMap
      */
-    public static void processorTransfers(final List<BalanceTransferEntity> transferEntities) {
+    public Pair<Map<String, Double>, Map<String, Integer>> processorTransfers(
+            final List<BalanceTransferEntity> transferEntities
+    ) {
         // exception: A source Bank account with ID 0 does not have a balance
         // 0, 112233, 60.00, 10/08/2055, 1445
         // 112233, 223344, 11.11, 11/08/2055, 1448
@@ -68,15 +72,24 @@ public class BalanceProcessor {
                     accToBalanceMap.replace(
                             entity.getDestinationAccount(),
                             newDestAmount);
-
                 });
 
+        // Reference: https://www.baeldung.com/java-tuples
+        Pair<Map<String, Double>, Map<String, Integer>> mapPair = Pair.with(accToBalanceMap, accToFreqMap);
+
+        return mapPair;
+    }
+
+    public String balancesPrinter(final Map<String, Double> accToBalanceMap, final Map<String, Integer> accToFreqMap) {
         // PRINT STATEMENTS
         System.out.println("*************** RESULTANT PRINTS BELOW *****************");
 
-        System.out.println("#Balances");
+        final var balancesBuilder = new StringBuilder();
+        // System.out.println("#Balances");
+        balancesBuilder.append("#Balances\n");
+
         accToBalanceMap.forEach((acc, balance) ->
-                System.out.printf("%s - %s\n", acc, Constants.TWO_PLACE_DECIMAL.format(balance)));
+                balancesBuilder.append(acc + " - " + Constants.TWO_PLACE_DECIMAL.format(balance) + "\n"));
 
         // Find account with highest balance after all the transfers
         // reference: https://stackoverflow.com/questions/5911174/finding-key-associated-with-max-value-in-a-java-map/11256352
@@ -84,14 +97,20 @@ public class BalanceProcessor {
                 accToBalanceMap.entrySet(),
                 Map.Entry.comparingByValue())
                 .getKey();
-        System.out.printf("#Bank Account with highest balance \n%s", accWithHighestBalance);
-        System.out.println();
+//        System.out.printf("#Bank Account with highest balance \n%s", accWithHighestBalance);
+//        System.out.println();
+        balancesBuilder.append("#Bank Account with highest balance \n");
+        balancesBuilder.append(accWithHighestBalance + "\n");
 
         final String accWithMaxSrcFreq = Collections.max(
                 accToFreqMap.entrySet(),
                 Map.Entry.comparingByValue())
                 .getKey();
-        System.out.printf("#Frequently used source bank account \n%s", accWithMaxSrcFreq);
-        System.out.println();
+//        System.out.printf("#Frequently used source bank account \n%s", accWithMaxSrcFreq);
+//        System.out.println();
+        balancesBuilder.append("#Frequently used source bank account \n");
+        balancesBuilder.append(accWithMaxSrcFreq + "\n");
+
+        return balancesBuilder.toString();
     }
 }

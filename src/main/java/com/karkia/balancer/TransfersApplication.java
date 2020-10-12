@@ -53,6 +53,11 @@ public class TransfersApplication implements CommandLineRunner {
         // DEBUG STATEMENT
         transferEntities.forEach(log::info);
 
-        BalanceProcessor.processorTransfers(transferEntities);
+        final BalanceProcessor balanceProcessor = new BalanceProcessor();
+        final var mapPair = balanceProcessor.processorTransfers(transferEntities);
+        final var balancesStr = balanceProcessor.balancesPrinter(mapPair.getValue0(), mapPair.getValue1());
+
+        // FINAL PRINTING OF RESULTS
+        System.out.print(balancesStr);
     }
 }
