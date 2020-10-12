@@ -1,5 +1,6 @@
 package com.karkia.balancer;
 
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -16,4 +17,9 @@ public final class Constants {
      * How many rows of text we want to skip while reading balances
      */
     public static final long FILE_ROW_SKIP_COUNT = 3L;
+
+    /**
+     * Formats a two place decimal
+     */
+    public static final DecimalFormat TWO_PLACE_DECIMAL = new DecimalFormat("#.##");
 }

@@ -1,6 +1,7 @@
 package com.karkia.balancer;
 
 import com.karkia.balancer.entities.BalanceTransferEntity;
+import com.karkia.balancer.processors.BalanceProcessor;
 import com.karkia.balancer.utils.TransferEntityBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
@@ -43,13 +44,15 @@ public class TransfersApplication implements CommandLineRunner {
 
         // read into Transfer POJOs
         assert null != file;
-        final ArrayList<BalanceTransferEntity> transferInfoEntities = new ArrayList<>();
+        final ArrayList<BalanceTransferEntity> transferEntities = new ArrayList<>();
         Files.readAllLines(Path.of(file.toURI()))
                 .stream()
                 .skip(Constants.FILE_ROW_SKIP_COUNT)
-                .forEach(transferStr -> transferInfoEntities.add(TransferEntityBuilder.buildTransferEntity(transferStr)));
+                .forEach(transferStr -> transferEntities.add(TransferEntityBuilder.buildTransferEntity(transferStr)));
 
-        // PRINTING OUT BELOW:::
-        transferInfoEntities.forEach(log::info);
+        // DEBUG STATEMENT
+        transferEntities.forEach(log::info);
+
+        BalanceProcessor.processorTransfers(transferEntities);
     }
 }
