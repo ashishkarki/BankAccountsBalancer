@@ -32,34 +32,28 @@ public class BalanceProcessor {
         // 0, 112233, 60.00, 10/08/2055, 1445
         // 112233, 223344, 11.11, 11/08/2055, 1448
 
-        Map<String, Double> accToBalanceMap = new HashMap<>();
-
         final Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances =
                 getStartingNonStartingMaps(transferEntities);
 
         // Determine the opening balances on all available accounts
         // These are the ones where sourceAccount == 0 i.e. the starting balance transfers
-        accToBalanceMap.putAll(getStartingBalances(startingNonStartingBalances));
+        final Map<String, Double> accToBalanceMap = new HashMap<>(getStartingBalances(startingNonStartingBalances));
 
         // DEBUG STATEMENT
         // accToBalanceMap.forEach((acc, bal) -> log.info("acc: {}, Starting balance: {}", acc, bal));
 
         // Go through the motion of calculating final balances
-
-        Map<String, Double> finalAccToBalanceMap = accToBalanceMap;
-        final var mapPair = startingNonStartingBalances.get(false)
-                .stream().map(entity -> buildAccountMaps(finalAccToBalanceMap, accToFreqMap, entity))
+        final Map<String, Double> accToFreqMap = startingNonStartingBalances.get(false)
+                .stream().map(entity -> buildAccountMaps(accToBalanceMap, entity))
                 .collect(Collectors.toList())
-                .get(0);
-        final Map<String, Double> accToFreqMap = new HashMap<>(mapPair.getValue1());
-        accToBalanceMap = new HashMap<>(mapPair.getValue0());
+                .get(0); // TODO find better way to collect/terminate value from buildAccountMaps
 
         // Reference: https://www.baeldung.com/java-tuples
         return Pair.with(accToBalanceMap, accToFreqMap);
     }
 
     private Map<String, Double> getStartingBalances(
-            Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances) {
+            final Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances) {
         final Map<String, Double> accToBalanceMap = new HashMap<>();
         startingNonStartingBalances.get(true)
                 .forEach(entity -> accToBalanceMap.put(
@@ -98,17 +92,15 @@ public class BalanceProcessor {
         return balancesBuilder.toString();
     }
 
-    private Pair<Map<String, Double>, Map<String, Double>> buildAccountMaps(
+    private Map<String, Double> buildAccountMaps(
             final Map<String, Double> accToBalanceMap,
             final BalanceTransferEntity entity) {
         assert accToBalanceMap.containsKey(entity.getSrcAccount());
         assert accToBalanceMap.containsKey(entity.getDestAccount());
 
         // Deduct this amount from source account
-
-        final var localAccToBalanceMap = new HashMap<>(accToBalanceMap);
-        final double newSrcAmount = localAccToBalanceMap.get(entity.getSrcAccount()) - entity.getAmount();
-        localAccToBalanceMap.replace(
+        final double newSrcAmount = accToBalanceMap.get(entity.getSrcAccount()) - entity.getAmount();
+        accToBalanceMap.replace(
                 entity.getSrcAccount(),
                 newSrcAmount);
 
@@ -117,12 +109,12 @@ public class BalanceProcessor {
         localAccToFreqMap.merge(entity.getSrcAccount(), 1.0, Double::sum);
 
         // Add this amount to the destination account
-        final double newDestAmount = localAccToBalanceMap.get(entity.getDestAccount()) + entity.getAmount();
-        localAccToBalanceMap.replace(
+        final double newDestAmount = accToBalanceMap.get(entity.getDestAccount()) + entity.getAmount();
+        accToBalanceMap.replace(
                 entity.getDestAccount(),
                 newDestAmount);
 
-        return Pair.with(localAccToBalanceMap, localAccToFreqMap);
+        return localAccToFreqMap;
     }
 
     private Map<Boolean, List<BalanceTransferEntity>> getStartingNonStartingMaps(final List<BalanceTransferEntity> transferEntities) {
