@@ -1,6 +1,6 @@
 package com.karkia.balancer.utils;
 
-import com.karkia.balancer.entities.BalanceTransferEntity;
+import com.karkia.balancer.entities.TransferEntity;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,17 +25,20 @@ public final class TransferEntityBuilder {
      * @param transferStr the string version of one row of balances transfer info.
      * @return BalanceTransferEntity
      */
-    public static BalanceTransferEntity buildTransferEntity(final String transferStr) {
+    public static TransferEntity buildTransferEntity(final String transferStr) {
+        assert null != transferStr && !transferStr.isEmpty();
+
         final List<String> splitTransferCols = List.of(COMPILE.split(transferStr))
                 .stream().map(String::trim)
                 .collect(Collectors.toList());
 
-        return BalanceTransferEntity.builder()
+        var res = TransferEntity.builder()
                 .srcAccount(splitTransferCols.get(0))
                 .destAccount(splitTransferCols.get(1))
                 .amount(Double.parseDouble(splitTransferCols.get(2)))
                 .transferDate(LocalDate.parse(splitTransferCols.get(3), TRANSFER_DATE_FORMAT))
                 .transferId(Long.parseLong(splitTransferCols.get(4)))
                 .build();
+        return res;
     }
 }

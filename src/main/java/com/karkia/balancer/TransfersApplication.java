@@ -1,6 +1,6 @@
 package com.karkia.balancer;
 
-import com.karkia.balancer.entities.BalanceTransferEntity;
+import com.karkia.balancer.entities.TransferEntity;
 import com.karkia.balancer.processors.BalanceProcessor;
 import com.karkia.balancer.utils.TransferEntityBuilder;
 import lombok.extern.log4j.Log4j2;
@@ -44,7 +44,7 @@ public class TransfersApplication implements CommandLineRunner {
 
         // read into Transfer POJOs
         assert null != file;
-        final ArrayList<BalanceTransferEntity> transferEntities = new ArrayList<>();
+        final ArrayList<TransferEntity> transferEntities = new ArrayList<>();
         Files.readAllLines(Path.of(file.toURI()))
                 .stream()
                 .skip(Constants.FILE_ROW_SKIP_COUNT)
