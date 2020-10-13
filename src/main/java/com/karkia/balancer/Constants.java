@@ -11,7 +11,7 @@ public final class Constants {
     /**
      * Our transfer date format is dd/MM/yyyy
      */
-    public final static DateTimeFormatter TRANSFER_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter TRANSFER_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
      * How many rows of text we want to skip while reading balances
@@ -22,5 +22,9 @@ public final class Constants {
      * Formats a two place decimal
      */
     public static final DecimalFormat TWO_PLACE_DECIMAL = new DecimalFormat("#.##");
+
+    /**
+     * Constant version of newline string
+     */
     public static final String NEWLINE_STRING = "\n";
 }

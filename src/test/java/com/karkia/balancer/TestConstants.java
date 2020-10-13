@@ -74,23 +74,17 @@ public final class TestConstants {
     /**
      * @return a sample final balance information string
      */
-    public static final String buildSampleBalanceStr() {
-        StringBuilder balancesBuilder = new StringBuilder();
-
-        balancesBuilder.append("#Balances").append(Constants.NEWLINE_STRING);
-        balancesBuilder.append("112233").append(" - ")
-                .append(Constants.TWO_PLACE_DECIMAL.format(48.89))
-                .append(Constants.NEWLINE_STRING);
-        balancesBuilder.append("223344").append(" - ")
-                .append(Constants.TWO_PLACE_DECIMAL.format(36.14))
-                .append(Constants.NEWLINE_STRING);
-
-        balancesBuilder.append("#Bank Account with highest balance").append(Constants.NEWLINE_STRING);
-        balancesBuilder.append("112233").append(Constants.NEWLINE_STRING);
-
-        balancesBuilder.append("#Frequently used source bank account").append(Constants.NEWLINE_STRING);
-        balancesBuilder.append("112233");
-
-        return balancesBuilder.toString();
+    public static String buildSampleBalanceStr() {
+        return "#Balances" + Constants.NEWLINE_STRING +
+                "112233" + " - " +
+                Constants.TWO_PLACE_DECIMAL.format(48.89) +
+                Constants.NEWLINE_STRING +
+                "223344" + " - " +
+                Constants.TWO_PLACE_DECIMAL.format(36.14) +
+                Constants.NEWLINE_STRING +
+                "#Bank Account with highest balance" + Constants.NEWLINE_STRING +
+                "112233" + Constants.NEWLINE_STRING +
+                "#Frequently used source bank account" + Constants.NEWLINE_STRING +
+                "112233";
     }
 }

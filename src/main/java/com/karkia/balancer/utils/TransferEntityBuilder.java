@@ -32,13 +32,12 @@ public final class TransferEntityBuilder {
                 .stream().map(String::trim)
                 .collect(Collectors.toList());
 
-        var res = TransferEntity.builder()
+        return TransferEntity.builder()
                 .srcAccount(splitTransferCols.get(0))
                 .destAccount(splitTransferCols.get(1))
                 .amount(Double.parseDouble(splitTransferCols.get(2)))
                 .transferDate(LocalDate.parse(splitTransferCols.get(3), TRANSFER_DATE_FORMAT))
                 .transferId(Long.parseLong(splitTransferCols.get(4)))
                 .build();
-        return res;
     }
 }
