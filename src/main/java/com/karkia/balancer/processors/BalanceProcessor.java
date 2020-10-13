@@ -1,7 +1,7 @@
 package com.karkia.balancer.processors;
 
 import com.karkia.balancer.Constants;
-import com.karkia.balancer.entities.BalanceTransferEntity;
+import com.karkia.balancer.entities.TransferEntity;
 import lombok.extern.log4j.Log4j2;
 import org.javatuples.Pair;
 
@@ -26,13 +26,13 @@ public class BalanceProcessor {
      * @return a Pair with accToBalanceMap and accToFreqMap
      */
     public Pair<Map<String, Double>, Map<String, Double>> processTransfers(
-            final List<BalanceTransferEntity> transferEntities
+            final List<TransferEntity> transferEntities
     ) {
         // exception: A source Bank account with ID 0 does not have a balance
         // 0, 112233, 60.00, 10/08/2055, 1445
         // 112233, 223344, 11.11, 11/08/2055, 1448
 
-        final Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances =
+        final Map<Boolean, List<TransferEntity>> startingNonStartingBalances =
                 getStartingNonStartingMaps(transferEntities);
 
         // Determine the opening balances on all available accounts
@@ -53,7 +53,7 @@ public class BalanceProcessor {
     }
 
     private Map<String, Double> getStartingBalances(
-            final Map<Boolean, List<BalanceTransferEntity>> startingNonStartingBalances) {
+            final Map<Boolean, List<TransferEntity>> startingNonStartingBalances) {
         final Map<String, Double> accToBalanceMap = new HashMap<>();
         startingNonStartingBalances.get(true)
                 .forEach(entity -> accToBalanceMap.put(
@@ -94,7 +94,7 @@ public class BalanceProcessor {
 
     private Map<String, Double> buildAccountMaps(
             final Map<String, Double> accToBalanceMap,
-            final BalanceTransferEntity entity) {
+            final TransferEntity entity) {
         assert accToBalanceMap.containsKey(entity.getSrcAccount());
         assert accToBalanceMap.containsKey(entity.getDestAccount());
 
@@ -117,7 +117,7 @@ public class BalanceProcessor {
         return localAccToFreqMap;
     }
 
-    private Map<Boolean, List<BalanceTransferEntity>> getStartingNonStartingMaps(final List<BalanceTransferEntity> transferEntities) {
+    private Map<Boolean, List<TransferEntity>> getStartingNonStartingMaps(final List<TransferEntity> transferEntities) {
         // Reference: https://www.baeldung.com/java-list-split
         return transferEntities.stream().collect(
                 Collectors.partitioningBy(transferEntity ->

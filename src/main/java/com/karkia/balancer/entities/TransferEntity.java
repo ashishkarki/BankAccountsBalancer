@@ -11,7 +11,7 @@ import java.time.LocalDate;
  */
 @Data
 @Builder
-public class BalanceTransferEntity {
+public class TransferEntity {
     /**
      * account FROM which money is being sent
      */
