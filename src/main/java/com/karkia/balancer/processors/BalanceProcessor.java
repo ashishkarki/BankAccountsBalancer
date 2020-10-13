@@ -53,7 +53,8 @@ public class BalanceProcessor {
     }
 
     private Map<String, Double> getStartingBalances(
-            final Map<Boolean, List<TransferEntity>> startingNonStartingBalances) {
+            final Map<Boolean, List<TransferEntity>> startingNonStartingBalances
+    ) {
         final Map<String, Double> accToBalanceMap = new HashMap<>();
         startingNonStartingBalances.get(true)
                 .forEach(entity -> accToBalanceMap.put(
@@ -68,7 +69,10 @@ public class BalanceProcessor {
      * @param accToFreqMap    AccNumber to its Freq. as a Source Map
      * @return string representing formatting output
      */
-    public String balancesPrinter(final Map<String, Double> accToBalanceMap, final Map<String, Double> accToFreqMap) {
+    public String balancesPrinter(
+            final Map<String, Double> accToBalanceMap,
+            final Map<String, Double> accToFreqMap
+    ) {
         log.info("*************** RESULTANT PRINTS BELOW *****************");
 
         final var balancesBuilder = new StringBuilder();
@@ -94,7 +98,8 @@ public class BalanceProcessor {
 
     private Map<String, Double> buildAccountMaps(
             final Map<String, Double> accToBalanceMap,
-            final TransferEntity entity) {
+            final TransferEntity entity
+    ) {
         assert accToBalanceMap.containsKey(entity.getSrcAccount());
         assert accToBalanceMap.containsKey(entity.getDestAccount());
 
@@ -117,7 +122,9 @@ public class BalanceProcessor {
         return localAccToFreqMap;
     }
 
-    private Map<Boolean, List<TransferEntity>> getStartingNonStartingMaps(final List<TransferEntity> transferEntities) {
+    private Map<Boolean, List<TransferEntity>> getStartingNonStartingMaps(
+            final List<TransferEntity> transferEntities
+    ) {
         // Reference: https://www.baeldung.com/java-list-split
         return transferEntities.stream().collect(
                 Collectors.partitioningBy(transferEntity ->

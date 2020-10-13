@@ -12,7 +12,10 @@
     <artifactId>transfers</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>transfers</name>
-    <description>Demo project for Spring Boot</description>
+    <description>
+        Java Console application that takes a file with balances and
+        calculates transfers and maintains final balances.
+    </description>
 
     <properties>
         <java.version>11</java.version>
@@ -53,21 +56,39 @@
             <version>1.2</version>
         </dependency>
 
+        <!-- Mockito based dependencies. Refer: https://www.baeldung.com/mockito-junit-5-extension -->
+        <!--<dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>-->
+
+        <!-- For Mockito -->
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.5.13</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-inline -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>3.5.13</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +96,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!--  to run our test classes using the new JUnit platform launcher -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
